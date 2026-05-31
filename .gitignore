@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+.env
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Build and Distribution (Nuitka & Inno Setup)
+dist/
+installer_output/
+*.exe
+*.dist/
+*.build/
+*.onefile-build/
+
+# Portable Runtimes & Bundles
+node_portable/
+playwright-browsers/
+ffmpeg/
+
+# Playwright output
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Application Data
+storyboards/
+videos-raw/
+output/
+gui_config.json
+
+# IDEs and Editors
+.vscode/
+.idea/
+.claude/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ai-shorts-generator — render</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #F6EFE0; }
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #2B2018;
+      position: relative;
+    }
+
+    /* ══════════════════════════════════════════
+       VISUAL THEMES — selected via ?visual=...
+       ══════════════════════════════════════════ */
+
+    /* 1. Cream (default) — warm amber/beige */
+    body, body[data-visual="cream"] {
+      --bg:           #F6EFE0;
+      --bg-card:      rgba(255, 250, 235, 0.75);
+      --text:         #2B2018;
+      --text-soft:    #6B5A48;
+      --border:       rgba(139, 110, 80, 0.30);
+      --accent:       #D9A441;
+      --accent-soft:  rgba(217, 164, 65, 0.18);
+      --sub-bg:       rgba(30, 20, 10, 0.72);
+      --term-bg:      #FDF9EE;
+      --term-text:    #1A120B;
+      --hero-shadow:  rgba(255, 245, 220, 0.85);
+      --hero-sub-color: #5A4030;
+      --emoji-shadow: rgba(139, 110, 80, 0.40);
+      --color-bad:    #A8482E;
+      --color-bad-bg: rgba(200, 90, 59, 0.10);
+      --color-bad-border: rgba(200, 90, 59, 0.55);
+      --color-good:   #3D6B1E;
+      --color-good-bg: rgba(80, 130, 40, 0.12);
+      --color-good-border: rgba(80, 130, 40, 0.55);
+      --text-on-accent: #1A120B;
+    }
+
+    /* 2. Dark — deep navy blue */
+    body[data-visual="dark"] {
+      --bg:           #0D1117;
+      --bg-card:      rgba(22, 27, 34, 0.90);
+      --text:         #E6EDF3;
+      --text-soft:    #8B949E;
+      --border:       rgba(48, 54, 61, 0.8);
+      --accent:       #58A6FF;
+      --accent-soft:  rgba(88, 166, 255, 0.15);
+      --sub-bg:       rgba(0, 0, 0, 0.75);
+      --term-bg:      #161B22;
+      --term-text:    #CDD9E5;
+      --hero-shadow:  rgba(0, 0, 0, 0.95);
+      --hero-sub-color: #8B949E;
+      --emoji-shadow: rgba(0, 0, 0, 0.70);
+      --color-bad:    #F47067;
+      --color-bad-bg: rgba(244, 112, 103, 0.12);
+      --color-bad-border: rgba(244, 112, 103, 0.50);
+      --color-good:   #57AB5A;
+      --color-good-bg: rgba(87, 171, 90, 0.12);
+      --color-good-border: rgba(87, 171, 90, 0.50);
+      --text-on-accent: #0D1117;
+    }
+
+    /* 3. Ocean — deep ocean teal */
+    body[data-visual="ocean"] {
+      --bg:           #0A1628;
+      --bg-card:      rgba(10, 30, 55, 0.90);
+      --text:         #CAF0F8;
+      --text-soft:    #90E0EF;
+      --border:       rgba(0, 180, 216, 0.25);
+      --accent:       #00B4D8;
+      --accent-soft:  rgba(0, 180, 216, 0.15);
+      --sub-bg:       rgba(0, 10, 30, 0.82);
+      --term-bg:      #0E2040;
+      --term-text:    #B8E8F5;
+      --hero-shadow:  rgba(0, 10, 40, 0.95);
+      --hero-sub-color: #90E0EF;
+      --emoji-shadow: rgba(0, 0, 0, 0.70);
+      --color-bad:    #FF8080;
+      --color-bad-bg: rgba(255, 128, 128, 0.12);
+      --color-bad-border: rgba(255, 128, 128, 0.50);
+      --color-good:   #40E0B0;
+      --color-good-bg: rgba(64, 224, 176, 0.12);
+      --color-good-border: rgba(64, 224, 176, 0.50);
+      --text-on-accent: #0A1628;
+    }
+
+    /* 4. Midnight — pure black neon purple */
+    body[data-visual="midnight"] {
+      --bg:           #080010;
+      --bg-card:      rgba(20, 5, 40, 0.90);
+      --text:         #F0E6FF;
+      --text-soft:    #C084FC;
+      --border:       rgba(168, 85, 247, 0.3);
+      --accent:       #A855F7;
+      --accent-soft:  rgba(168, 85, 247, 0.18);
+      --sub-bg:       rgba(5, 0, 20, 0.85);
+      --term-bg:      #150025;
+      --term-text:    #E8D5FF;
+      --hero-shadow:  rgba(5, 0, 20, 0.95);
+      --hero-sub-color: #C084FC;
+      --emoji-shadow: rgba(0, 0, 0, 0.75);
+      --color-bad:    #FF7090;
+      --color-bad-bg: rgba(255, 112, 144, 0.12);
+      --color-bad-border: rgba(255, 112, 144, 0.50);
+      --color-good:   #70FFCA;
+      --color-good-bg: rgba(112, 255, 202, 0.10);
+      --color-good-border: rgba(112, 255, 202, 0.50);
+      --text-on-accent: #0D0020;
+    }
+
+    /* 5. Forest — dark emerald green */
+    body[data-visual="forest"] {
+      --bg:           #0B1A0E;
+      --bg-card:      rgba(15, 35, 18, 0.90);
+      --text:         #D4EDDA;
+      --text-soft:    #86EFAC;
+      --border:       rgba(34, 197, 94, 0.25);
+      --accent:       #22C55E;
+      --accent-soft:  rgba(34, 197, 94, 0.15);
+      --sub-bg:       rgba(0, 15, 5, 0.82);
+      --term-bg:      #122518;
+      --term-text:    #C8F0D0;
+      --hero-shadow:  rgba(0, 15, 5, 0.95);
+      --hero-sub-color: #86EFAC;
+      --emoji-shadow: rgba(0, 0, 0, 0.70);
+      --color-bad:    #FF7070;
+      --color-bad-bg: rgba(255, 112, 112, 0.12);
+      --color-bad-border: rgba(255, 112, 112, 0.50);
+      --color-good:   #5DF0A0;
+      --color-good-bg: rgba(93, 240, 160, 0.10);
+      --color-good-border: rgba(93, 240, 160, 0.45);
+      --text-on-accent: #0B1A0E;
+    }
+
+    /* 6. Rose — warm rose/coral */
+    body[data-visual="rose"] {
+      --bg:           #1A0810;
+      --bg-card:      rgba(35, 10, 20, 0.90);
+      --text:         #FFE4E6;
+      --text-soft:    #FDA4AF;
+      --border:       rgba(251, 113, 133, 0.25);
+      --accent:       #FB7185;
+      --accent-soft:  rgba(251, 113, 133, 0.18);
+      --sub-bg:       rgba(20, 0, 8, 0.82);
+      --term-bg:      #2A0F1A;
+      --term-text:    #FFDDE2;
+      --hero-shadow:  rgba(20, 0, 8, 0.95);
+      --hero-sub-color: #FDA4AF;
+      --emoji-shadow: rgba(0, 0, 0, 0.70);
+      --color-bad:    #FF6B6B;
+      --color-bad-bg: rgba(255, 107, 107, 0.12);
+      --color-bad-border: rgba(255, 107, 107, 0.50);
+      --color-good:   #90FFD0;
+      --color-good-bg: rgba(144, 255, 208, 0.10);
+      --color-good-border: rgba(144, 255, 208, 0.45);
+      --text-on-accent: #1A0810;
+    }
+
+    /* Content-type overrides still apply on top of visual theme */
+    body[data-theme="danger"]  { --accent: #F87171; --accent-soft: rgba(248, 113, 113, 0.18); }
+    body[data-theme="warning"] { --accent: #FBBF24; --accent-soft: rgba(251, 191, 36, 0.20); }
+    body[data-theme="success"] { --accent: #4ADE80; --accent-soft: rgba(74, 222, 128, 0.18); }
+
+    /* ---- Stage + scene stacking ---- */
+    .stage { position: absolute; inset: 0; background: var(--bg); }
+    .scene {
+      position: absolute; inset: 0;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 5vmin;
+    }
+    .scene.active { opacity: 1; }
+
+    /* ---- Captions: subtitle bar at bottom (caption.en only) ---- */
+    .captions {
+      position: absolute;
+      left: 5vmin; right: 5vmin;
+      bottom: 6vmin;
+      text-align: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .caption-en {
+      display: inline-block;
+      font-weight: 700;
+      font-size: min(2vw, 2.6vh);
+      line-height: 1.3;
+      letter-spacing: 0.01em;
+      color: #fff;
+      background: var(--sub-bg, rgba(30, 20, 10, 0.72));
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      padding: 0.6em 1.4em;
+      border-radius: 100px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+      max-width: 88vw;
+    }
+    /* caption.vi = voice-over script only, never shown on screen */
+    .caption-vi { display: none; }
+    /* Extra bottom space so scene content never overlaps subtitle */
+    .scene { padding-bottom: 12vmin; }
+    @media (orientation: portrait) {
+      .caption-en { font-size: 3.2vw; }
+      .captions { bottom: 22vh; }
+    }
+
+    /* ---- Scene: hero-text ---- */
+    .s-hero {
+      background: radial-gradient(circle at 50% 40%, var(--accent-soft), transparent 65%), var(--bg);
+    }
+    .s-hero .hero-emoji {
+      font-size: min(14vw, 20vh);
+      filter: drop-shadow(0 6px 18px var(--emoji-shadow, rgba(0,0,0,0.5)));
+      margin-bottom: 2vmin;
+      animation: pulse 1.4s ease-in-out infinite alternate;
+    }
+    .s-hero .hero-headline {
+      font-size: min(8vw, 11vh);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      text-align: center;
+      line-height: 1.05;
+      max-width: 20ch;
+      text-shadow: 0 3px 12px var(--hero-shadow, rgba(0,0,0,0.9)),
+                   0 1px  4px var(--hero-shadow, rgba(0,0,0,0.9));
+    }
+    .s-hero .hero-headline.accent { color: var(--accent); }
+    .s-hero .hero-sub {
+      margin-top: 2.5vmin;
+      font-size: min(2.2vw, 3vh);
+      color: var(--hero-sub-color, var(--text-soft));
+      font-family: "SF Mono", "JetBrains Mono", Menlo, monospace;
+      letter-spacing: 0.05em;
+      opacity: 0.9;
+    }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+
+    /* ---- Scene: stats-grid ---- */
+    .s-stats { background: var(--bg); }
+    .stats-wrap {
+      display: grid;
+      gap: 3vmin;
+      width: min(88vw, 1500px);
+      margin-bottom: 10vh;
+    }
+    .stats-wrap[data-cols="2"] { grid-template-columns: 1fr 1fr; }
+    .stats-wrap[data-cols="3"] { grid-template-columns: 1fr 1fr 1fr; }
+    .stats-wrap[data-cols="4"] { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    @media (orientation: portrait) {
+      .stats-wrap[data-cols="2"],
+      .stats-wrap[data-cols="3"],
+      .stats-wrap[data-cols="4"] { grid-template-columns: 1fr 1fr; }
+    }
+    .stat {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 4vmin 3vmin;
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(139, 110, 80, 0.08);
+    }
+    .stat.accent {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+    .stat .n {
+      font-family: "SF Mono", "JetBrains Mono", Menlo, monospace;
+      font-size: min(7vw, 10vh);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+    .stat.accent .n { color: var(--accent); }
+    .stat .l {
+      margin-top: 1.5vmin;
+      font-size: min(1.6vw, 2.2vh);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-soft);
+      opacity: 0.85;
+    }
+
+    /* ---- Scene: code-diff ---- */
+    .s-code-diff { background: var(--bg); justify-content: flex-start; padding-top: 8vmin; }
+    .diff-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3vmin;
+      width: min(90vw, 1600px);
+    }
+    @media (orientation: portrait) {
+      .diff-wrap { grid-template-columns: 1fr; }
+    }
+    .diff-col {
+      border-radius: 14px;
+      padding: 3vmin;
+      font-family: "SF Mono", "JetBrains Mono", Menlo, monospace;
+      font-size: min(1.5vw, 2.1vh);
+      line-height: 1.6;
+      min-height: 30vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .diff-col.bad  { background: var(--color-bad-bg);  border: 2px solid var(--color-bad-border); }
+    .diff-col.good { background: var(--color-good-bg); border: 2px solid var(--color-good-border); }
+    .diff-col .tag {
+      font-size: min(1.3vw, 1.8vh);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      opacity: 0.9;
+      margin-bottom: 2vmin;
+      font-family: "Inter", sans-serif;
+      font-weight: 700;
+    }
+    .diff-col.bad  .tag { color: var(--color-bad); }
+    .diff-col.good .tag { color: var(--color-good); }
+    .diff-col pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: min(1.9vw, 2.6vh);
+    }
+    .diff-col.bad  pre { color: var(--color-bad); }
+    .diff-col.good pre { color: var(--color-good); }
+
+    /* ---- Scene: terminal ---- */
+    .s-terminal { background: var(--bg); justify-content: flex-start; padding-top: 8vmin; }
+    .term {
+      background: var(--term-bg, #FDF9EE);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      width: min(90vw, 1500px);
+      padding: 3vmin 3.5vmin;
+      font-family: "SF Mono", "JetBrains Mono", Menlo, monospace;
+      font-size: min(1.6vw, 2.2vh);
+      line-height: 1.65;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--border);
+      min-height: 45vh;
+      color: var(--term-text, var(--text));
+    }
+    .term .header { display: flex; gap: 10px; padding-bottom: 2vmin; border-bottom: 1px solid var(--border); margin-bottom: 2vmin; }
+    .term .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .term .dot.r { background: #F87171; } .term .dot.y { background: var(--accent); } .term .dot.g { background: #4ADE80; }
+    .term .line { display: block; }
+    .term .line.prompt::before { content: "$ "; color: var(--accent); font-weight: 700; }
+    .term .line.prompt         { color: var(--term-text, var(--text)); }
+    .term .line.output         { color: var(--text-soft); }
+    .term .line.error          { color: var(--color-bad,  #F87171); font-weight: 600; }
+    .term .line.success        { color: var(--color-good, #4ADE80); font-weight: 600; }
+    .term .cursor { display: inline-block; width: 0.6em; height: 1em; vertical-align: middle; background: var(--accent); animation: blink 1s step-end infinite; margin-left: 2px; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ---- Scene: quote ---- */
+    .s-quote {
+      background: radial-gradient(circle at 50% 50%, var(--accent-soft), transparent 65%), var(--bg);
+    }
+    .quote-text {
+      font-size: min(5vw, 7vh);
+      font-weight: 700;
+      font-style: italic;
+      max-width: 24ch;
+      text-align: center;
+      line-height: 1.2;
+      color: var(--text);
+      padding: 0 5vmin;
+      position: relative;
+    }
+    .quote-text::before {
+      content: "\201C";
+      font-size: 2em;
+      color: var(--accent);
+      position: absolute;
+      top: -0.5em; left: -0.2em;
+      opacity: 0.6;
+    }
+    .quote-attr {
+      margin-top: 3vmin;
+      font-size: min(2vw, 2.7vh);
+      opacity: 0.9;
+      font-family: "SF Mono", monospace;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+    .quote-attr::before { content: "— "; }
+
+    /* ---- Scene: iframe ---- */
+    .s-iframe { background: var(--bg); justify-content: flex-start; padding-top: 4vmin; }
+    .iframe-wrap {
+      position: relative;
+      width: min(90vw, 1600px);
+      height: 62vh;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 14px 42px rgba(139, 110, 80, 0.22);
+      border: 1px solid var(--border);
+    }
+    @media (orientation: portrait) {
+      .iframe-wrap { width: 94vw; height: 55vh; }
+    }
+    .iframe-wrap iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+    .iframe-badge {
+      position: absolute;
+      top: 4vmin; right: 4vmin;
+      background: linear-gradient(135deg, var(--accent), #B8841F);
+      color: #fff;
+      padding: 1.8vmin 2.8vmin;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: min(2vw, 2.7vh);
+      box-shadow: 0 8px 24px rgba(139, 110, 80, 0.3);
+      max-width: 32vw;
+    }
+
+    /* ---- Scene: cta-url ---- */
+    .s-cta {
+      background: radial-gradient(circle at 50% 50%, var(--accent-soft), transparent 65%), var(--bg);
+      justify-content: center;
+    }
+    .cta-block {
+      display: flex; flex-direction: column; align-items: center; gap: 3vmin;
+      padding: 0 5vmin; width: 100%;
+    }
+    .cta-label {
+      font-size: min(1.6vw, 2.2vh);
+      letter-spacing: 4px; text-transform: uppercase;
+      color: var(--text-soft); opacity: 0.85; font-weight: 600;
+    }
+    .cta-url {
+      font-family: "SF Mono", "JetBrains Mono", Menlo, monospace;
+      font-size: min(3.4vw, 4.8vh);
+      font-weight: 700;
+      color: var(--accent);
+      padding: 2.4vmin 4vmin;
+      border: 2px solid var(--accent);
+      border-radius: 14px;
+      background: var(--accent-soft);
+      box-shadow: 0 10px 36px rgba(217, 164, 65, 0.25);
+      text-align: center;
+      word-break: break-all;
+      max-width: 90vw;
+      animation: glow 1.4s ease-in-out infinite alternate;
+    }
+    @media (orientation: portrait) {
+      .cta-url { font-size: 4.8vw; padding: 3vmin; }
+    }
+    @keyframes glow {
+      from { box-shadow: 0 10px 36px rgba(217, 164, 65, 0.25); }
+      to   { box-shadow: 0 14px 56px rgba(217, 164, 65, 0.45); }
+    }
+    .cta-sub {
+      font-size: min(1.9vw, 2.6vh);
+      color: var(--text-soft); opacity: 0.9; font-weight: 500; text-align: center;
+    }
+
+    /* ---- Scene: monologue (image bg + kinetic text) ---- */
+    .s-monologue { background: #1A120B; overflow: hidden; padding: 0; }
+    .s-monologue .bg-image {
+      position: absolute; inset: 0; z-index: 1; overflow: hidden;
+    }
+    .s-monologue .bg-image img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: brightness(0.55) saturate(1.05) sepia(0.18);
+      animation: slow-zoom 8s ease-out both;
+    }
+    @keyframes slow-zoom {
+      from { transform: scale(1.02); }
+      to   { transform: scale(1.12); }
+    }
+    .s-monologue .mono-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: min(8vw, 11vh); font-weight: 900;
+      line-height: 1.05; letter-spacing: -0.025em;
+      color: #FBF3DF; text-align: center;
+      padding: 0 6vmin; max-width: 92vw;
+      text-shadow: 0 4px 28px rgba(26, 18, 11, 0.95), 0 0 2px rgba(26, 18, 11, 1);
+      z-index: 3;
+      animation: mono-fade-up 1.0s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .s-monologue .mono-emoji {
+      position: absolute; top: 18%; left: 50%;
+      transform: translateX(-50%);
+      font-size: min(9vw, 14vh);
+      filter: drop-shadow(0 4px 16px rgba(26, 18, 11, 0.7));
+      z-index: 3;
+      animation: mono-emoji-in 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes mono-fade-up {
+      0%   { opacity: 0; transform: translate(-50%, -30%); }
+      100% { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    @keyframes mono-emoji-in {
+      0%   { opacity: 0; transform: translate(-50%, 20%) scale(0.6) rotate(-10deg); }
+      100% { opacity: 1; transform: translate(-50%, 0) scale(1) rotate(0); }
+    }
+    /* Vignette overlay for readability */
+    .s-monologue .vignette {
+      position: absolute; inset: 0; z-index: 2;
+      background: radial-gradient(ellipse at center, transparent 30%, rgba(40, 28, 18, 0.72) 100%);
+      pointer-events: none;
+    }
+
+    /* ---- Progress bar ---- */
+    .progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(139, 110, 80, 0.15); z-index: 100; }
+    .progress-fill { height: 100%; width: 0; background: var(--accent); transition: width 0.1s linear; }
+
+    /* ---- Loading state ---- */
+    .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; opacity: 0.5; }
+  </style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <div class="loading" id="loading">loading…</div>
+  </div>
+  <div class="progress"><div class="progress-fill" id="progress"></div></div>
+
+  <script>
+    // ============================================================
+    // Engine: data-driven scene renderer
+    // Reads ?storyboard=/path/to/foo.json, builds <div class="scene">
+    // per entry, runs a timeline that fades one scene in at a time.
+    // ============================================================
+
+    const params = new URLSearchParams(location.search);
+    const storyboardPath = params.get('storyboard') || '/storyboards/sglang-cve.json';
+
+    // ---- Scene builders (return an HTMLElement for the scene body) ----
+
+    function el(tag, className, content) {
+      const e = document.createElement(tag);
+      if (className) e.className = className;
+      if (content !== undefined) {
+        if (typeof content === 'string') e.innerHTML = content;
+        else if (Array.isArray(content)) content.forEach(c => e.appendChild(c));
+        else e.appendChild(content);
+      }
+      return e;
+    }
+
+    function addCaptions(sceneEl, caption) {
+      if (!caption) return;
+      const wrap = el('div', 'captions');
+      if (caption.en) wrap.appendChild(el('div', 'caption-en', caption.en));
+      if (caption.vi) wrap.appendChild(el('div', 'caption-vi', caption.vi));
+      sceneEl.appendChild(wrap);
+    }
+
+    const builders = {
+      'hero-text': (d) => {
+        const inner = [];
+        if (d.emoji) inner.push(el('div', 'hero-emoji', d.emoji));
+        const headline = el('div', 'hero-headline' + (d.accent ? ' accent' : ''),
+                            d.headline || d.text || '');
+        inner.push(headline);
+        if (d.sub) inner.push(el('div', 'hero-sub', d.sub));
+        return { className: 's-hero', children: inner };
+      },
+
+      'stats-grid': (d) => {
+        const stats = (d.stats || []).map(s => {
+          const c = el('div', 'stat' + (s.accent ? ' accent' : ''));
+          c.appendChild(el('div', 'n', s.big || s.n || '—'));
+          c.appendChild(el('div', 'l', s.label || s.l || ''));
+          return c;
+        });
+        const grid = el('div', 'stats-wrap');
+        grid.dataset.cols = String(stats.length);
+        stats.forEach(s => grid.appendChild(s));
+        return { className: 's-stats', children: [grid] };
+      },
+
+      'code-diff': (d) => {
+        const bad = el('div', 'diff-col bad');
+        bad.appendChild(el('div', 'tag', d.badLabel || '✗ vulnerable'));
+        bad.appendChild(el('pre', null, escapeHtml(d.bad || '')));
+        const good = el('div', 'diff-col good');
+        good.appendChild(el('div', 'tag', d.goodLabel || '✓ fixed'));
+        good.appendChild(el('pre', null, escapeHtml(d.good || '')));
+        const wrap = el('div', 'diff-wrap');
+        wrap.appendChild(bad);
+        wrap.appendChild(good);
+        return { className: 's-code-diff', children: [wrap] };
+      },
+
+      'terminal': (d) => {
+        const header = el('div', 'header');
+        ['r','y','g'].forEach(c => header.appendChild(el('span', 'dot ' + c)));
+        header.appendChild(el('span', null, `<span style="opacity:0.6;margin-left:8px;">${escapeHtml(d.title || 'terminal')}</span>`));
+        const body = el('div', 'term-body');
+        (d.lines || []).forEach(line => {
+          const kind = typeof line === 'string' ? 'output' : (line.type || 'output');
+          const text = typeof line === 'string' ? line : line.text;
+          body.appendChild(el('span', 'line ' + kind, escapeHtml(text)));
+        });
+        body.appendChild(el('span', 'cursor'));
+        const term = el('div', 'term', [header, body]);
+        return { className: 's-terminal', children: [term] };
+      },
+
+      'quote': (d) => {
+        const text = el('div', 'quote-text', escapeHtml(d.text || ''));
+        const inner = [text];
+        if (d.attr || d.attribution) inner.push(el('div', 'quote-attr', escapeHtml(d.attr || d.attribution)));
+        return { className: 's-quote', children: inner };
+      },
+
+      'iframe': (d) => {
+        const frame = el('iframe');
+        frame.src = d.src;
+        if (d.sandbox !== undefined) frame.setAttribute('sandbox', d.sandbox);
+        const wrap = el('div', 'iframe-wrap', [frame]);
+        if (d.badge) {
+          const b = el('div', 'iframe-badge', escapeHtml(d.badge));
+          wrap.appendChild(b);
+        }
+        return { className: 's-iframe', children: [wrap] };
+      },
+
+      'monologue': (d) => {
+        const children = [];
+        if (d.image) {
+          const img = el('img');
+          img.src = d.image;
+          img.alt = '';
+          const bg = el('div', 'bg-image', [img]);
+          children.push(bg);
+        }
+        children.push(el('div', 'vignette'));
+        if (d.emoji) {
+          const em = el('div', 'mono-emoji', escapeHtml(d.emoji));
+          children.push(em);
+        }
+        if (d.text) {
+          const txt = el('div', 'mono-text', escapeHtml(d.text));
+          children.push(txt);
+        }
+        return { className: 's-monologue', children };
+      },
+
+      'cta-url': (d) => {
+        const block = el('div', 'cta-block');
+        if (d.label) block.appendChild(el('div', 'cta-label', escapeHtml(d.label)));
+        block.appendChild(el('div', 'cta-url', escapeHtml(d.url || '')));
+        if (d.sub) block.appendChild(el('div', 'cta-sub', escapeHtml(d.sub)));
+        return { className: 's-cta', children: [block] };
+      },
+    };
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function buildScene(def, idx) {
+      const build = builders[def.type];
+      if (!build) {
+        console.error('Unknown scene type:', def.type);
+        const s = el('div', 'scene');
+        s.appendChild(el('div', null, `<div style="color:#f55">Unknown type: ${escapeHtml(def.type)}</div>`));
+        return s;
+      }
+      const { className, children } = build(def);
+      const sceneEl = el('div', 'scene ' + className);
+      sceneEl.dataset.idx = String(idx);
+      children.forEach(c => sceneEl.appendChild(c));
+      addCaptions(sceneEl, def.caption);
+      return sceneEl;
+    }
+
+    // ---- Main ----
+
+    async function main() {
+      let storyboard;
+      try {
+        const res = await fetch(storyboardPath);
+        storyboard = await res.json();
+      } catch (err) {
+        document.getElementById('loading').textContent = 'failed to load ' + storyboardPath;
+        console.error(err);
+        window.__renderDone = true;
+        return;
+      }
+
+      const { meta = {}, scenes = [] } = storyboard;
+      if (meta.theme)    document.body.dataset.theme  = meta.theme;
+      // Apply visual theme from URL param ?visual=
+      const visual = params.get('visual') || 'cream';
+      document.body.dataset.visual = visual;
+      document.title = meta.title || 'video';
+
+      const stage = document.getElementById('stage');
+      stage.removeChild(document.getElementById('loading'));
+
+      // Build timeline
+      const timeline = [];
+      let t = 0;
+      scenes.forEach((def, idx) => {
+        const dur = def.duration || 4;
+        timeline.push({ idx, start: t, end: t + dur, def });
+        t += dur;
+      });
+      const TOTAL = t;
+
+      // Render scene DOM nodes
+      const sceneEls = timeline.map(({ def }, idx) => {
+        const el = buildScene(def, idx);
+        stage.appendChild(el);
+        return el;
+      });
+
+      const progressEl = document.getElementById('progress');
+
+      function setActiveScene(idx) {
+        sceneEls.forEach((el, i) => el.classList.toggle('active', i === idx));
+      }
+
+      // Run loop
+      const t0 = performance.now();
+      function tick(now) {
+        const tt = (now - t0) / 1000;
+        progressEl.style.width = Math.min(100, (tt / TOTAL) * 100) + '%';
+
+        const cur = timeline.find(s => tt >= s.start && tt < s.end);
+        setActiveScene(cur ? cur.idx : -1);
+
+        if (tt < TOTAL) {
+          requestAnimationFrame(tick);
+        } else {
+          // Hold on final scene.
+          setActiveScene(timeline.length - 1);
+          window.__renderDone = true;
+        }
+      }
+
+      // Let fonts + iframes settle briefly before starting.
+      setTimeout(() => requestAnimationFrame(tick), 300);
+    }
+
+    window.addEventListener('load', main);
+  </script>
+</body>
+</html>

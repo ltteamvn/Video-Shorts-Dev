@@ -1,0 +1,14 @@
+{
+  "name": "ai-shorts-generator",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AI social shorts generator: turn any URL or content into 16:9 + 9:16 MP4s ready for TikTok, YouTube Shorts, Reels, and LinkedIn.",
+  "scripts": {
+    "install:browsers": "playwright install chromium",
+    "render": "bash scripts/render.sh",
+    "record": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0"
+  }
+}
