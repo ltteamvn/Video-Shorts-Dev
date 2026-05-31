@@ -19,6 +19,9 @@ installer_output/
 *.dist/
 *.build/
 *.onefile-build/
+*.bat
+*.iss
+build_helper.py
 
 # Portable Runtimes & Bundles
 node_portable/
