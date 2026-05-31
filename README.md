@@ -1,5 +1,8 @@
 # ai-shorts-generator
 
+**Tác giả (Author)**: Lý Trần  
+**Cộng đồng Zalo (Zalo Group)**: [Tham gia tại đây](https://zalo.me/g/9hgtwuim889xkxq3y9ox)
+
 AI-powered social shorts generator: turn any URL or piece of content into **16:9 + 9:16 MP4s** ready for YouTube Shorts, Reels, TikTok, LinkedIn.
 
 Two modes:
